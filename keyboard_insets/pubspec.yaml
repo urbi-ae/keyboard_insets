@@ -1,0 +1,27 @@
+name: keyboard_insets
+description: A Flutter plugin that provides real-time keyboard height and visibility state across platforms.
+version: 0.1.0
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=3.19.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  keyboard_insets_platform_interface:
+    path: ../keyboard_insets_platform_interface
+  keyboard_insets_mobile:
+    path: ../keyboard_insets_mobile
+  keyboard_insets_web:
+    path: ../keyboard_insets_web
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        default_package: keyboard_insets_mobile
+      ios:
+        default_package: keyboard_insets_mobile
+      web:
+        default_package: keyboard_insets_web

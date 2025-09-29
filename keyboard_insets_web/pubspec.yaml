@@ -1,0 +1,21 @@
+name: keyboard_insets_web
+description: "Web implementation of keyboard_insets"
+version: 0.1.0
+homepage: "github.com/urbi/keyboard_insets"
+
+environment:
+  sdk: ^3.6.0
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  keyboard_insets_platform_interface:
+    path: ../keyboard_insets_platform_interface
+
+flutter:
+  plugin:
+    platforms:
+      web:
+        pluginClass: KeyboardInsetsWeb
+        fileName: keyboard_insets_web.dart

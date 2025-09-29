@@ -1,0 +1,5 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <meta-data
+    android:name="com.example.keyboard_insets.KeyboardInsetsMobilePlugin"
+    android:value="flutterEmbedding" />
+</manifest>
