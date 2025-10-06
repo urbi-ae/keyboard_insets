@@ -3,7 +3,7 @@ description: "A Flutter plugin that provides real-time keyboard height and visib
 version: 0.1.0
 
 environment:
-  sdk: ^3.6.0
+  sdk: ">=3.5.0 <4.0.0"
   flutter: '>=3.3.0'
 
 dependencies:
