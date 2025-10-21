@@ -1,5 +1,8 @@
 import 'package:keyboard_insets_platform_interface/keyboard_insets_platform_interface.dart';
 
+export 'persistent_safe_area/persistent_safe_area.dart';
+export 'persistent_safe_area/persistent_safe_area_bottom.dart';
+
 /// Main class to access keyboard insets and state.
 ///
 /// ### Example:

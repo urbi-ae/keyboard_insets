@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 import 'package:keyboard_insets_platform_interface/keyboard_insets_platform_interface.dart';
+import 'package:keyboard_insets_web/safe_area_web.dart';
 
 /// Web implementation of [KeyboardInsetsPlatform].
 ///
@@ -8,10 +9,21 @@ import 'package:keyboard_insets_platform_interface/keyboard_insets_platform_inte
 /// - On desktop browsers: always returns 0.
 /// - On mobile browsers: returns `screenHeight - visualViewport.height`.
 class KeyboardInsetsWeb extends KeyboardInsetsPlatform {
-  final StreamController<double> _insetController =
+  static final StreamController<double> _insetController =
       StreamController<double>.broadcast();
-  final StreamController<KeyboardState> _stateController =
+  static final StreamController<KeyboardState> _stateController =
       StreamController<KeyboardState>.broadcast();
+  static final StreamController<double> _safeAreaController =
+      StreamController<double>.broadcast(
+    onListen: () {
+      void onResponce(double inset) {
+        _safeAreaController.sink.add(inset);
+      }
+
+      SafeAreaMonitorWeb.startSafeAreaObserver(onResponce);
+    },
+    onCancel: () => SafeAreaMonitorWeb.stopSafeAreaObserver(),
+  );
 
   bool _isAnimating = false;
   double _lastHeight = 0;
@@ -53,6 +65,9 @@ class KeyboardInsetsWeb extends KeyboardInsetsPlatform {
   Stream<KeyboardState> get stateStream => _stateController.stream;
 
   @override
+  Stream<double> get safeAreaStream => _safeAreaController.stream;
+
+  @override
   double get keyboardHeight => _lastHeight;
 
   @override
@@ -66,5 +81,6 @@ class KeyboardInsetsWeb extends KeyboardInsetsPlatform {
     window.visualViewport?.removeEventListener('scroll', _onResize);
     _insetController.close();
     _stateController.close();
+    _safeAreaController.close();
   }
 }

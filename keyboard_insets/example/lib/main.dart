@@ -19,6 +19,11 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    PersistentSafeAreaBottom.stream.listen((inset) {
+      if (kDebugMode) {
+        print('Safe area height: $inset');
+      }
+    });
     KeyboardInsets.stateStream.listen((event) {
       if (kDebugMode) {
         print(

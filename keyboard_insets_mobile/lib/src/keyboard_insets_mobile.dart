@@ -35,16 +35,17 @@ class KeyboardInsetsMobile extends KeyboardInsetsPlatform {
   // ---- Internals ------------------------------------------------------------------------
 
   static NativeCallable<KeyboardInsetUpdateCallbackFunction>? _insetCallable;
-  static final StreamController<double> _insetStreamController = StreamController<double>.broadcast(
+  static final StreamController<double> _insetStreamController =
+      StreamController<double>.broadcast(
     onListen: () {
       void onResponse(double height) {
         _insetStreamController.sink.add(height);
       }
 
-      _insetCallable ??= NativeCallable<KeyboardInsetUpdateCallbackFunction>.listener(onResponse);
+      _insetCallable ??=
+          NativeCallable<KeyboardInsetUpdateCallbackFunction>.listener(
+              onResponse);
       _bindings.register_inset_callback(_insetCallable!.nativeFunction);
-      _bindings.set_keyboard_animation(true);
-      _bindings.start_listening_insets();
     },
     onCancel: () {
       _bindings.unregister_inset_callback();
@@ -59,19 +60,22 @@ class KeyboardInsetsMobile extends KeyboardInsetsPlatform {
   );
 
   static NativeCallable<KeyboardStateUpdateCallbackFunction>? _stateCallable;
-  static final StreamController<KeyboardState> _stateStreamController = StreamController<KeyboardState>.broadcast(
+  static final StreamController<KeyboardState> _stateStreamController =
+      StreamController<KeyboardState>.broadcast(
     onListen: () {
       void onResponse(bool isVisible, bool isAnimating) {
-        _stateStreamController.sink.add(KeyboardState(isVisible: isVisible, isAnimating: isAnimating));
+        _stateStreamController.sink
+            .add(KeyboardState(isVisible: isVisible, isAnimating: isAnimating));
       }
 
       if (!_insetStreamController.hasListener) {
         _bindings.set_keyboard_animation(false);
       }
 
-      _stateCallable ??= NativeCallable<KeyboardStateUpdateCallbackFunction>.listener(onResponse);
+      _stateCallable ??=
+          NativeCallable<KeyboardStateUpdateCallbackFunction>.listener(
+              onResponse);
       _bindings.register_state_callback(_stateCallable!.nativeFunction);
-      _bindings.start_listening_insets();
     },
     onCancel: () {
       _bindings.unregister_state_callback();
@@ -81,6 +85,30 @@ class KeyboardInsetsMobile extends KeyboardInsetsPlatform {
 
       _stateCallable?.close();
       _stateCallable = null;
+    },
+  );
+
+  @override
+  Stream<double> get safeAreaStream => _safeAreaStreamController.stream;
+
+  static NativeCallable<SafeAreaInsetUpdateCallbackFunction>? _safeAreaCallable;
+  static final StreamController<double> _safeAreaStreamController =
+      StreamController<double>.broadcast(
+    onListen: () {
+      void onResponse(double inset) {
+        _safeAreaStreamController.sink.add(inset);
+      }
+
+      _safeAreaCallable ??=
+          NativeCallable<SafeAreaInsetUpdateCallbackFunction>.listener(
+              onResponse);
+      _bindings
+          .register_safe_area_inset_callback(_safeAreaCallable!.nativeFunction);
+    },
+    onCancel: () {
+      _bindings.unregister_safe_area_inset_callback();
+      _safeAreaCallable?.close();
+      _safeAreaCallable = null;
     },
   );
 }

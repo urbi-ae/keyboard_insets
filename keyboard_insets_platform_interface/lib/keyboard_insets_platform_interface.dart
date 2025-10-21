@@ -101,6 +101,9 @@ abstract class KeyboardInsetsPlatform extends PlatformInterface {
   /// For this value to be updated, you need to subscribe to any of the streams
   @mustBeOverridden
   bool get isAnimating;
+
+  @mustBeOverridden
+  Stream<double> get safeAreaStream;
 }
 
 /// Default dummy implementation of [KeyboardInsetsPlatform].
@@ -113,6 +116,9 @@ class _DummyKeyboardInsets extends KeyboardInsetsPlatform {
   Stream<KeyboardState> get stateStream => Stream.value(
         const KeyboardState(isVisible: false, isAnimating: false),
       );
+
+  @override
+  Stream<double> get safeAreaStream => Stream<double>.value(0.0);
 
   @override
   double get keyboardHeight => 0.0;

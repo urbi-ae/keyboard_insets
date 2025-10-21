@@ -12,8 +12,12 @@ bool is_keyboard_animating(void);
 
 // A callback for keyboard inset changes.
 typedef void (*KeyboardInsetUpdateCallback)(float inset);
+
 // A callback for keyboard visibility and animation state changes.
 typedef void (*KeyboardStateUpdateCallback)(bool isVisible, bool isAnimating);
+
+// A callback for safe area inset changes.
+typedef void (*SafeAreaInsetUpdateCallback)(float inset);
 
 // Register callback for keyboard inset changes.
 void register_inset_callback(KeyboardInsetUpdateCallback callback);
@@ -25,14 +29,16 @@ void unregister_inset_callback(void);
 // Unregister callback for keyboard state changes.
 void unregister_state_callback(void);
 
+// Register callback for safe area inset changes.
+void register_safe_area_inset_callback(SafeAreaInsetUpdateCallback callback);
+
+// Unregister callback for safe area inset changes.
+void unregister_safe_area_inset_callback(void);
+
 // Enable or disable keyboard animation handling.
 void set_keyboard_animation(bool isEnabled);
 
-
 // ---- Native functions which are design to be implemented in platform-specific code ----
-
-// Call this function to start listening to keyboard events.
-void start_listening_insets(void);
 
 // Call this function to stop listening to keyboard events.
 void stop_listening_insets(void);
