@@ -168,8 +168,10 @@ public func start_safe_area_observer() {
 
 @_cdecl("stop_safe_area_observer")
 public func stop_safe_area_observer() {
-    safeAreaMonitor?.removeFromSuperview()
-    safeAreaMonitor = nil
+    DispatchQueue.main.async {
+        safeAreaMonitor?.removeFromSuperview()
+        safeAreaMonitor = nil
+    }
 }
 
 @_cdecl("updateSafeArea")
