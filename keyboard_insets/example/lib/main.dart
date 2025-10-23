@@ -19,17 +19,27 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    PersistentSafeAreaBottom.stream.listen((inset) {
-      if (kDebugMode) {
-        print('Safe area height: $inset');
-      }
-    });
+    PersistentSafeAreaBottom.startObserving();
+    PersistentSafeAreaBottom.notifier?.addListener(printSafeAreaBottom);
     KeyboardInsets.stateStream.listen((event) {
       if (kDebugMode) {
         print(
             'Keyboard height: ${event.isAnimating} v=${event.isVisible} ${KeyboardInsets.keyboardHeight}');
       }
     });
+  }
+
+  @override
+  void dispose() {
+    PersistentSafeAreaBottom.notifier?.removeListener(printSafeAreaBottom);
+    PersistentSafeAreaBottom.stopObserving();
+    super.dispose();
+  }
+
+  void printSafeAreaBottom() {
+    if (kDebugMode) {
+      print('Safe area height: ${PersistentSafeAreaBottom.notifier?.value}');
+    }
   }
 
   @override

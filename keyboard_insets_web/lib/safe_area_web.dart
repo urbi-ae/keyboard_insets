@@ -4,13 +4,13 @@ import 'dart:js' as js;
 typedef SafeAreaCallback = void Function(double bottomInset);
 
 class SafeAreaMonitorWeb {
-  static bool _initialized = false;
-  static bool _listening = false;
+  static bool initialized = false;
+  static bool listening = false;
 
   static void startSafeAreaObserver(SafeAreaCallback callback) {
-    if (!_initialized) {
+    if (!initialized) {
       _injectJs();
-      _initialized = true;
+      initialized = true;
     }
 
     js.context.callMethod('SafeAreaMonitor.startSafeAreaObserver', [
@@ -18,14 +18,14 @@ class SafeAreaMonitorWeb {
         callback(bottomInset.toDouble());
       })
     ]);
-    _listening = true;
+    listening = true;
   }
 
   static void stopSafeAreaObserver() {
-    if (!_initialized || !_listening) return;
+    if (!initialized || !listening) return;
 
     js.context.callMethod('SafeAreaMonitor.stopSafeAreaObserver');
-    _listening = false;
+    listening = false;
   }
 
   static void _injectJs() {

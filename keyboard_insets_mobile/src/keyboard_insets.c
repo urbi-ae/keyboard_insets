@@ -48,7 +48,7 @@ bool is_keyboard_animating(void) { return current_inset != current_target; }
 
 void set_keyboard_animation(bool isEnabled) {
     is_keyboard_animation_enabled = isEnabled;
-    // Implementated inside platform-specific code.
+    // Implemented inside platform-specific code.
     platform_set_keyboard_animation(isEnabled);
 }
 

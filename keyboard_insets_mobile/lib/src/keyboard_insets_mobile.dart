@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:keyboard_insets_mobile/bindings/keyboard_insets_bindings_generated.dart';
 import 'package:keyboard_insets_platform_interface/keyboard_insets_platform_interface.dart';
 
@@ -88,27 +89,55 @@ class KeyboardInsetsMobile extends KeyboardInsetsPlatform {
     },
   );
 
+  double _lastSafeArea = 0.0;
   @override
-  Stream<double> get safeAreaStream => _safeAreaStreamController.stream;
+  ValueNotifier<double>? safeArea;
+
+  @override
+  void startObservingSafeArea() {
+    void onResponse(double inset) {
+      _lastSafeArea = inset;
+      safeArea?.value = inset;
+    }
+
+    safeArea = ValueNotifier(_lastSafeArea);
+
+    _safeAreaCallable ??=
+        NativeCallable<SafeAreaInsetUpdateCallbackFunction>.listener(
+            onResponse);
+    _bindings
+        .register_safe_area_inset_callback(_safeAreaCallable!.nativeFunction);
+  }
+
+  @override
+  void stopObservingSafeArea() {
+    safeArea?.dispose();
+    safeArea = null;
+    _bindings.unregister_safe_area_inset_callback();
+    _safeAreaCallable?.close();
+    _safeAreaCallable = null;
+  }
 
   static NativeCallable<SafeAreaInsetUpdateCallbackFunction>? _safeAreaCallable;
-  static final StreamController<double> _safeAreaStreamController =
-      StreamController<double>.broadcast(
-    onListen: () {
-      void onResponse(double inset) {
-        _safeAreaStreamController.sink.add(inset);
-      }
 
-      _safeAreaCallable ??=
-          NativeCallable<SafeAreaInsetUpdateCallbackFunction>.listener(
-              onResponse);
-      _bindings
-          .register_safe_area_inset_callback(_safeAreaCallable!.nativeFunction);
-    },
-    onCancel: () {
-      _bindings.unregister_safe_area_inset_callback();
-      _safeAreaCallable?.close();
-      _safeAreaCallable = null;
-    },
-  );
+  @override
+  void dispose() {
+    _lastSafeArea = 0.0;
+    safeArea?.dispose();
+    safeArea = null;
+    _safeAreaCallable?.close();
+    _safeAreaCallable = null;
+
+    _bindings
+      ..unregister_safe_area_inset_callback()
+      ..unregister_state_callback()
+      ..unregister_inset_callback()
+      ..stop_listening_insets();
+
+    _insetCallable?.close();
+    _insetCallable = null;
+
+    _stateCallable?.close();
+    _stateCallable = null;
+  }
 }

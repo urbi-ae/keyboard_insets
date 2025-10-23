@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:html';
+import 'package:flutter/foundation.dart';
 import 'package:keyboard_insets_platform_interface/keyboard_insets_platform_interface.dart';
 import 'package:keyboard_insets_web/safe_area_web.dart';
 
@@ -13,17 +14,6 @@ class KeyboardInsetsWeb extends KeyboardInsetsPlatform {
       StreamController<double>.broadcast();
   static final StreamController<KeyboardState> _stateController =
       StreamController<KeyboardState>.broadcast();
-  static final StreamController<double> _safeAreaController =
-      StreamController<double>.broadcast(
-    onListen: () {
-      void onResponce(double inset) {
-        _safeAreaController.sink.add(inset);
-      }
-
-      SafeAreaMonitorWeb.startSafeAreaObserver(onResponce);
-    },
-    onCancel: () => SafeAreaMonitorWeb.stopSafeAreaObserver(),
-  );
 
   bool _isAnimating = false;
   double _lastHeight = 0;
@@ -65,7 +55,7 @@ class KeyboardInsetsWeb extends KeyboardInsetsPlatform {
   Stream<KeyboardState> get stateStream => _stateController.stream;
 
   @override
-  Stream<double> get safeAreaStream => _safeAreaController.stream;
+  ValueNotifier<double>? safeArea;
 
   @override
   double get keyboardHeight => _lastHeight;
@@ -76,11 +66,30 @@ class KeyboardInsetsWeb extends KeyboardInsetsPlatform {
   @override
   bool get isAnimating => _isAnimating;
 
+  @override
+  void startObservingSafeArea() {
+    if (!SafeAreaMonitorWeb.listening) {
+      safeArea = ValueNotifier(0.0);
+      void onResponce(double inset) {
+        safeArea?.value = inset;
+      }
+
+      SafeAreaMonitorWeb.startSafeAreaObserver(onResponce);
+    }
+  }
+
+  @override
+  void stopObservingSafeArea() {
+    SafeAreaMonitorWeb.stopSafeAreaObserver();
+    safeArea?.dispose();
+  }
+
+  @override
   void dispose() {
     window.visualViewport?.removeEventListener('resize', _onResize);
     window.visualViewport?.removeEventListener('scroll', _onResize);
     _insetController.close();
     _stateController.close();
-    _safeAreaController.close();
+    safeArea?.dispose();
   }
 }

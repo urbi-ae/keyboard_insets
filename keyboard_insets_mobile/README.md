@@ -6,6 +6,7 @@ Android + iOS implementation of the [`keyboard_insets`](https://pub.dev/packages
 
 - Native **FFI-based** bindings for Android and iOS.
 - Streams real-time keyboard height and visibility.
+- Provides `ValueNotifier` for persistent safe area bottom inset.
 - Uses platform-native APIs:
   - iOS: `UIKeyboardWillShow/Hide` notifications + `CADisplayLink` for per-frame updates.
   - Android: `WindowInsetsCompat` + `WindowInsetsAnimationCompat`.

@@ -134,8 +134,9 @@ public func stop_keyboard_observer() {
 @_cdecl("start_safe_area_observer")
 public func start_safe_area_observer() {
     DispatchQueue.main.async {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-            let window = windowScene.windows.first
+        guard
+            let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+            let window = scene.windows.first(where: { $0.isKeyWindow })
         else { return }
 
         // Remove previous monitor if any

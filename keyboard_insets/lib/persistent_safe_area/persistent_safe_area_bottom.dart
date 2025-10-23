@@ -1,19 +1,22 @@
+import 'package:flutter/widgets.dart';
 import 'package:keyboard_insets/persistent_safe_area/persistent_safe_area.dart';
 import 'package:keyboard_insets_platform_interface/keyboard_insets_platform_interface.dart';
 
-/// Main class to access the system's bottom safe area (home indicator or navigation bar).
+/// Provides access to the system's **bottom safe area** (home indicator or navigation bar).
 ///
-/// This class provides a stream of the current **bottom safe area height** —
-/// typically representing the system UI padding at the bottom of the screen,
-/// such as the **home indicator** on iOS or the **navigation bar** on Android.
+/// This class exposes a [ValueNotifier] that tracks the current **bottom safe area height** —
+/// typically the system UI padding at the bottom of the screen, such as:
+/// - the **home indicator** on iOS, or
+/// - the **navigation bar** on Android.
 ///
-/// The safe area height remains stable during keyboard animations and updates
-/// only when the system layout changes (e.g., when the orientation or navigation
-/// mode changes).
+/// The bottom inset value remains **stable during keyboard animations** and updates
+/// only when the system layout changes (for example, due to orientation or navigation mode changes).
 ///
-/// ### Example:
+/// ---
+///
+/// ### Example
 /// ```dart
-/// import 'package:view_insets/view_insets.dart';
+/// import 'package:keyboard_insets/keyboard_insets.dart';
 ///
 /// void main() {
 ///   runApp(const MyApp());
@@ -21,19 +24,33 @@ import 'package:keyboard_insets_platform_interface/keyboard_insets_platform_inte
 ///
 /// class MyApp extends StatefulWidget {
 ///   const MyApp({super.key});
+///
 ///   @override
 ///   State<MyApp> createState() => _MyAppState();
 /// }
 ///
 /// class _MyAppState extends State<MyApp> {
 ///   @override
+///   void initState() {
+///     super.initState();
+///     // Begin observing the native safe area changes.
+///     PersistentSafeAreaBottom.startObserving();
+///   }
+///
+///   @override
+///   void dispose() {
+///     // Stop observing when the widget is removed from the tree.
+///     PersistentSafeAreaBottom.stopObserving();
+///     super.dispose();
+///   }
+///
+///   @override
 ///   Widget build(BuildContext context) {
 ///     return MaterialApp(
 ///       home: Scaffold(
-///         body: StreamBuilder<double>(
-///           stream: PersistentSafeAreaBottom.stream,
-///           builder: (context, snapshot) {
-///             final bottomInset = snapshot.data ?? 0.0;
+///         body: ValueListenableBuilder<double>(
+///           valueListenable: PersistentSafeAreaBottom.notifier!,
+///           builder: (context, bottomInset, _) {
 ///             return Padding(
 ///               padding: EdgeInsets.only(bottom: bottomInset),
 ///               child: Center(
@@ -48,32 +65,58 @@ import 'package:keyboard_insets_platform_interface/keyboard_insets_platform_inte
 /// }
 /// ```
 ///
-/// If there are no listeners, the native safe area observer is stopped to save resources.
-/// When a listener is added, the observer restarts automatically.
-/// This lifecycle is managed internally by the platform implementation.
+/// ---
 ///
-///  See also:
+/// ### Lifecycle
+/// - You only can manually manage observation lifecycle by calling
+///   [startObserving] and [stopObserving].
 ///
-///  * [PersistentSafeArea], a widget that insets its child by the current bottom safe area,
-/// staying stable during keyboard animations.
+/// ---
+///
+/// ### See also
+/// * [PersistentSafeArea], a widget that applies the bottom safe area padding to its child
+///   and keeps it stable during keyboard animations.
 final class PersistentSafeAreaBottom {
   const PersistentSafeAreaBottom._();
 
-  /// Broadcast stream of the system's bottom safe area height.
+  /// A [ValueNotifier] representing the current bottom safe area height in logical pixels.
   ///
-  /// Emits the safe area height in logical pixels whenever it changes.
-  /// The value remains constant during keyboard animations and updates
-  /// only when system layout changes occur.
+  /// Emits new values whenever the system layout changes (for example, when the
+  /// device orientation changes or navigation mode toggles between gesture and button navigation).
+  static ValueNotifier<double>? get notifier =>
+      KeyboardInsetsPlatform.instance.safeArea;
+
+  /// Starts observing system safe area changes.
   ///
-  /// ### Example:
+  /// Begins monitoring the device’s safe area (e.g., home indicator or navigation bar)
+  /// and updates [notifier] whenever it changes.
+  ///
+  /// Typically called in `initState()` or when your UI becomes active.
+  ///
+  /// Example:
   /// ```dart
-  /// PersistentSafeAreaBottom.stream.listen((inset) {
-  ///   print('Bottom safe area: $inset');
-  /// });
+  /// @override
+  /// void initState() {
+  ///   super.initState();
+  ///   PersistentSafeAreaBottom.startObservingSafeArea();
+  /// }
   /// ```
+  static void startObserving() =>
+      KeyboardInsetsPlatform.instance.startObservingSafeArea();
+
+  /// Stops observing system safe area changes.
   ///
-  /// Use this to adjust layout elements that should avoid system UI overlap,
-  /// such as bottom navigation bars or floating action buttons.
-  static Stream<double> get stream =>
-      KeyboardInsetsPlatform.instance.safeAreaStream;
+  /// Call this when your UI is no longer visible or being disposed of to avoid
+  /// unnecessary updates and potential memory leaks.
+  ///
+  /// Example:
+  /// ```dart
+  /// @override
+  /// void dispose() {
+  ///   PersistentSafeAreaBottom.stopObservingSafeArea();
+  ///   super.dispose();
+  /// }
+  /// ```
+  static void stopObserving() =>
+      KeyboardInsetsPlatform.instance.stopObservingSafeArea();
 }

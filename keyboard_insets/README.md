@@ -59,9 +59,11 @@ KeyboardInsets.stateStream.listen((state) {
 To listen to **bottom safe area** (home indicator / navigation bar) height, which **stays constant** during keyboard animations:
 
 ```dart
-SafeAreaBottom.safeAreaStream.listen((bottomInset) {
-  print('Safe area bottom: $bottomInset');
-});
+PersistentSafeAreaBottom.startObservingSafeArea();
+
+print('Safe area bottom: ${PersistentSafeAreaBottom.notifier.value}');
+
+PersistentSafeAreaBottom.stopObservingSafeArea();
 ```
 
 ## 🧱 Widgets
@@ -72,34 +74,19 @@ A drop-in replacement for Flutter’s SafeArea that preserves bottom padding eve
 
 ```dart
 PersistentSafeArea(
-  child: Scaffold(
-    body: Center(child: Text("I ignore keyboard changes!")),
-  ),
+	child: Scaffold(
+		body: Center(child: Text("I ignore keyboard changes!")),
+	),
 )
 ```
+
 ||||
 --|--|--|--
 Name|Type|Description
 `child`|`Widget`|The widget below this safe area.
-`maintainBottomInset`|`bool`|Whether to apply bottom padding independent of keyboard. Defaults to `true`.
+`handleObserver`|`bool`|Whether to automatically start/stop the native safe area observer. If set to `false` you must manage it manually. Defaults to `false`.
 
-### 🟩 `PersistentSafeAreaBottom`
-A minimal widget that **only applies** bottom padding equal to the current system safe area (home indicator height).  
-Perfect for sticky buttons or bottom bars.
-
-```dart
-PersistentSafeAreaBottom(
-  child: Padding(
-    padding: const EdgeInsets.all(16),
-    child: ElevatedButton(
-      onPressed: () {},
-      child: Text("Continue"),
-    ),
-  ),
-)
-```
-
-This padding stays **stable** while the keyboard animates, and only updates when the system safe area itself changes (like orientation rotation or system UI change).
+The bottom safe area padding stays **stable** while the keyboard animates, and only updates when the system safe area itself changes (like orientation rotation or system UI change).
 
 ## 📖 API Reference
 
