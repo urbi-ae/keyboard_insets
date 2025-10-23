@@ -1,11 +1,13 @@
 name: keyboard_insets_platform_interface
 description: Platform interface for the keyboard_insets plugin.
 version: 1.0.0
-homepage: "github.com/urbi/keyboard_insets"
+
+repository: https://github.com/urbi/keyboard_insets
+homepage: https://github.com/urbi/keyboard_insets
 
 environment:
   sdk: ">=3.5.0 <4.0.0"
-  flutter: ">=1.17.0"
+  flutter: '>=3.3.0'
 
 dependencies:
   flutter:

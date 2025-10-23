@@ -1,7 +1,9 @@
 name: keyboard_insets_web
 description: "Web implementation of keyboard_insets"
 version: 0.1.0
-homepage: "github.com/urbi/keyboard_insets"
+
+repository: https://github.com/urbi/keyboard_insets
+homepage: https://github.com/urbi/keyboard_insets
 
 environment:
   sdk: ">=3.5.0 <4.0.0"

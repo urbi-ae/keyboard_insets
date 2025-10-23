@@ -2,6 +2,9 @@ name: keyboard_insets_mobile
 description: "A Flutter plugin that provides real-time keyboard height and visibility state"
 version: 0.1.0
 
+repository: https://github.com/urbi/keyboard_insets
+homepage: https://github.com/urbi/keyboard_insets
+
 environment:
   sdk: ">=3.5.0 <4.0.0"
   flutter: '>=3.3.0'
