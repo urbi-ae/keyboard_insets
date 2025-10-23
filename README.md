@@ -32,12 +32,12 @@ platform :ios, '13.0'
 
 ## ⚙️ Platform Details
 | | | |
---|--|--|
-Platform|Implementation|Notes
-**iOS**|`CASpringAnimation`|Requires iOS 13.0+
-**Android**|`WindowInsetsAnimationCompat` + FFI|Reads per-frame inset updates|
-**Web**|Uses `visualViewport.onresize`|Lightweight JavaScript interop
-**Desktop**|Dummy implementation|Always returns zero insets
+|--|--|--|
+|Platform|Implementation|Notes|
+|**iOS**|`CASpringAnimation`|Requires iOS 13.0+|
+|**Android**|`WindowInsetsAnimationCompat` + FFI|Reads per-frame inset updates|
+|**Web**|Uses `visualViewport.onresize`|Lightweight JavaScript interop|
+|**Desktop**|Dummy implementation|Always returns zero insets|
 
 ## 🚀 Usage
 
@@ -81,10 +81,10 @@ PersistentSafeArea(
 ```
 
 | | | |
---|--|--|--
-Name|Type|Description
-`child`|`Widget`|The widget below this safe area.
-`handleObserver`|`bool`|Whether to automatically start/stop the native safe area observer. If set to `false` you must manage it manually. Defaults to `false`.
+|--|--|--|
+|Name|Type|Description|
+|`child`|`Widget`|The widget below this safe area.|
+|`handleObserver`|`bool`|Whether to automatically start/stop the native safe area observer. If set to `false` you must manage it manually. Defaults to `false`.|
 
 The bottom safe area padding stays **stable** while the keyboard animates, and only updates when the system safe area itself changes (like orientation rotation or system UI change).
 
@@ -93,13 +93,13 @@ The bottom safe area padding stays **stable** while the keyboard animates, and o
 ### Keyboard Insets
 
 | | | |
---|--|--|--
-API|Type|Description
-`KeyboardInsets.insets`|`Stream<double>`|Real-time keyboard height (px)
-`KeyboardInsets.stateStream`|`Stream<KeyboardState>`|Visibility + animation state
-`KeyboardInsets.keyboardHeight`|`double`|Persistent keyboard height
-`KeyboardInsets.isVisible`|`bool`|Whether the keyboard is visible
-`KeyboardInsets.isAnimating`|`bool`|Whether keyboard is animating
+|--|--|--|
+|API|Type|Description|
+|`KeyboardInsets.insets`|`Stream<double>`|Real-time keyboard height (px)|
+|`KeyboardInsets.stateStream`|`Stream<KeyboardState>`|Visibility + animation state|
+|`KeyboardInsets.keyboardHeight`|`double`|Persistent keyboard height|
+|`KeyboardInsets.isVisible`|`bool`|Whether the keyboard is visible|
+|`KeyboardInsets.isAnimating`|`bool`|Whether keyboard is animating|
 
 ## 🤝 Contribution
 Contributions are welcome! Please open issues for bugs or feature requests. Submit pull requests with clear descriptions and tests.

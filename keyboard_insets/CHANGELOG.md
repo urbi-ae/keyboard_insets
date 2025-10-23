@@ -1,3 +1,6 @@
+## 0.1.0+1
+[Docs] Fixed README.md file columns.
+
 ## 0.1.0
 
 ### ✨ Initial release of Main plugin (public API + widget layer)

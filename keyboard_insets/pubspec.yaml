@@ -1,9 +1,9 @@
 name: keyboard_insets
 description: A Flutter plugin that provides real-time keyboard height and visibility state across platforms.
-version: 0.1.0
+version: 0.1.0+1
 
-repository: https://github.com/urbi/keyboard_insets
-homepage: https://github.com/urbi/keyboard_insets
+repository: https://github.com/urbi-ae/keyboard_insets
+homepage: https://github.com/urbi-ae/keyboard_insets
 
 environment:
   sdk: ">=3.5.0 <4.0.0"
