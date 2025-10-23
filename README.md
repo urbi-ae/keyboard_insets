@@ -31,7 +31,7 @@ platform :ios, '13.0'
 ```
 
 ## ⚙️ Platform Details
-||||
+| | | |
 --|--|--|
 Platform|Implementation|Notes
 **iOS**|`CASpringAnimation`|Requires iOS 13.0+
@@ -80,7 +80,7 @@ PersistentSafeArea(
 )
 ```
 
-||||
+| | | |
 --|--|--|--
 Name|Type|Description
 `child`|`Widget`|The widget below this safe area.
@@ -92,7 +92,7 @@ The bottom safe area padding stays **stable** while the keyboard animates, and o
 
 ### Keyboard Insets
 
-||||
+| | | |
 --|--|--|--
 API|Type|Description
 `KeyboardInsets.insets`|`Stream<double>`|Real-time keyboard height (px)
