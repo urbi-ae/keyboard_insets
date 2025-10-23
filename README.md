@@ -104,8 +104,8 @@ API|Type|Description
 ## 🤝 Contribution
 Contributions are welcome! Please open issues for bugs or feature requests. Submit pull requests with clear descriptions and tests.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](keyboard_insets/CONTRIBUTING.md) for guidelines.
 
 ## 📜 License
 
-BSD-2 License. See [LICENSE](LICENSE) for details.
+BSD-2 License. See [LICENSE](keyboard_insets/LICENSE) for details.

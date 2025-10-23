@@ -78,7 +78,7 @@ linter:
     # - avoid_js_rounded_ints # https://dart-lang.github.io/linter/lints/avoid_js_rounded_ints.html
     #    - avoid_multiple_declarations_per_line # https://dart-lang.github.io/linter/lints/avoid_multiple_declarations_per_line.html
     - avoid_null_checks_in_equality_operators # https://dart-lang.github.io/linter/lints/avoid_null_checks_in_equality_operators.html
-    - avoid_positional_boolean_parameters # https://dart-lang.github.io/linter/lints/avoid_positional_boolean_parameters.html
+    # - avoid_positional_boolean_parameters # https://dart-lang.github.io/linter/lints/avoid_positional_boolean_parameters.html
     - avoid_private_typedef_functions # https://dart-lang.github.io/linter/lints/avoid_private_typedef_functions.html
     - avoid_redundant_argument_values # https://dart-lang.github.io/linter/lints/avoid_redundant_argument_values.html
     - avoid_renaming_method_parameters # https://dart-lang.github.io/linter/lints/avoid_renaming_method_parameters.html

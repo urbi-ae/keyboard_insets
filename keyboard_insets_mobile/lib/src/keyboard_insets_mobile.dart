@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:keyboard_insets_mobile/bindings/keyboard_insets_bindings_generated.dart';
 import 'package:keyboard_insets_platform_interface/keyboard_insets_platform_interface.dart';
 
@@ -35,16 +36,17 @@ class KeyboardInsetsMobile extends KeyboardInsetsPlatform {
   // ---- Internals ------------------------------------------------------------------------
 
   static NativeCallable<KeyboardInsetUpdateCallbackFunction>? _insetCallable;
-  static final StreamController<double> _insetStreamController = StreamController<double>.broadcast(
+  static final StreamController<double> _insetStreamController =
+      StreamController<double>.broadcast(
     onListen: () {
       void onResponse(double height) {
         _insetStreamController.sink.add(height);
       }
 
-      _insetCallable ??= NativeCallable<KeyboardInsetUpdateCallbackFunction>.listener(onResponse);
+      _insetCallable ??=
+          NativeCallable<KeyboardInsetUpdateCallbackFunction>.listener(
+              onResponse);
       _bindings.register_inset_callback(_insetCallable!.nativeFunction);
-      _bindings.set_keyboard_animation(true);
-      _bindings.start_listening_insets();
     },
     onCancel: () {
       _bindings.unregister_inset_callback();
@@ -59,19 +61,22 @@ class KeyboardInsetsMobile extends KeyboardInsetsPlatform {
   );
 
   static NativeCallable<KeyboardStateUpdateCallbackFunction>? _stateCallable;
-  static final StreamController<KeyboardState> _stateStreamController = StreamController<KeyboardState>.broadcast(
+  static final StreamController<KeyboardState> _stateStreamController =
+      StreamController<KeyboardState>.broadcast(
     onListen: () {
       void onResponse(bool isVisible, bool isAnimating) {
-        _stateStreamController.sink.add(KeyboardState(isVisible: isVisible, isAnimating: isAnimating));
+        _stateStreamController.sink
+            .add(KeyboardState(isVisible: isVisible, isAnimating: isAnimating));
       }
 
       if (!_insetStreamController.hasListener) {
         _bindings.set_keyboard_animation(false);
       }
 
-      _stateCallable ??= NativeCallable<KeyboardStateUpdateCallbackFunction>.listener(onResponse);
+      _stateCallable ??=
+          NativeCallable<KeyboardStateUpdateCallbackFunction>.listener(
+              onResponse);
       _bindings.register_state_callback(_stateCallable!.nativeFunction);
-      _bindings.start_listening_insets();
     },
     onCancel: () {
       _bindings.unregister_state_callback();
@@ -83,4 +88,56 @@ class KeyboardInsetsMobile extends KeyboardInsetsPlatform {
       _stateCallable = null;
     },
   );
+
+  double _lastSafeArea = 0.0;
+  @override
+  ValueNotifier<double>? safeArea;
+
+  @override
+  void startObservingSafeArea() {
+    void onResponse(double inset) {
+      _lastSafeArea = inset;
+      safeArea?.value = inset;
+    }
+
+    safeArea = ValueNotifier(_lastSafeArea);
+
+    _safeAreaCallable ??=
+        NativeCallable<SafeAreaInsetUpdateCallbackFunction>.listener(
+            onResponse);
+    _bindings
+        .register_safe_area_inset_callback(_safeAreaCallable!.nativeFunction);
+  }
+
+  @override
+  void stopObservingSafeArea() {
+    safeArea?.dispose();
+    safeArea = null;
+    _bindings.unregister_safe_area_inset_callback();
+    _safeAreaCallable?.close();
+    _safeAreaCallable = null;
+  }
+
+  static NativeCallable<SafeAreaInsetUpdateCallbackFunction>? _safeAreaCallable;
+
+  @override
+  void dispose() {
+    _lastSafeArea = 0.0;
+    safeArea?.dispose();
+    safeArea = null;
+    _safeAreaCallable?.close();
+    _safeAreaCallable = null;
+
+    _bindings
+      ..unregister_safe_area_inset_callback()
+      ..unregister_state_callback()
+      ..unregister_inset_callback()
+      ..stop_listening_insets();
+
+    _insetCallable?.close();
+    _insetCallable = null;
+
+    _stateCallable?.close();
+    _stateCallable = null;
+  }
 }

@@ -88,7 +88,7 @@ linter:
     - avoid_setters_without_getters # https://dart-lang.github.io/linter/lints/avoid_setters_without_getters.html
     - avoid_shadowing_type_parameters # https://dart-lang.github.io/linter/lints/avoid_shadowing_type_parameters.html
     - avoid_single_cascade_in_expression_statements # https://dart-lang.github.io/linter/lints/avoid_single_cascade_in_expression_statements.html
-    - avoid_types_on_closure_parameters # https://dart-lang.github.io/linter/lints/avoid_types_on_closure_parameters.html
+    # - avoid_types_on_closure_parameters # https://dart-lang.github.io/linter/lints/avoid_types_on_closure_parameters.html
     - avoid_unnecessary_containers # https://dart-lang.github.io/linter/lints/avoid_unnecessary_containers.html
     - avoid_unused_constructor_parameters # https://dart-lang.github.io/linter/lints/avoid_unused_constructor_parameters.html
     - avoid_void_async # https://dart-lang.github.io/linter/lints/avoid_void_async.html
