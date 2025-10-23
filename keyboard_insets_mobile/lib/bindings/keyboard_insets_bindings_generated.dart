@@ -109,6 +109,33 @@ class KeyboardInsetsBindings {
   late final _unregister_state_callback =
       _unregister_state_callbackPtr.asFunction<void Function()>();
 
+  /// Register callback for safe area inset changes.
+  void register_safe_area_inset_callback(
+    SafeAreaInsetUpdateCallback callback,
+  ) {
+    return _register_safe_area_inset_callback(
+      callback,
+    );
+  }
+
+  late final _register_safe_area_inset_callbackPtr = _lookup<
+          ffi.NativeFunction<ffi.Void Function(SafeAreaInsetUpdateCallback)>>(
+      'register_safe_area_inset_callback');
+  late final _register_safe_area_inset_callback =
+      _register_safe_area_inset_callbackPtr
+          .asFunction<void Function(SafeAreaInsetUpdateCallback)>();
+
+  /// Unregister callback for safe area inset changes.
+  void unregister_safe_area_inset_callback() {
+    return _unregister_safe_area_inset_callback();
+  }
+
+  late final _unregister_safe_area_inset_callbackPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'unregister_safe_area_inset_callback');
+  late final _unregister_safe_area_inset_callback =
+      _unregister_safe_area_inset_callbackPtr.asFunction<void Function()>();
+
   /// Enable or disable keyboard animation handling.
   void set_keyboard_animation(
     bool isEnabled,
@@ -123,17 +150,6 @@ class KeyboardInsetsBindings {
           'set_keyboard_animation');
   late final _set_keyboard_animation =
       _set_keyboard_animationPtr.asFunction<void Function(bool)>();
-
-  /// Call this function to start listening to keyboard events.
-  void start_listening_insets() {
-    return _start_listening_insets();
-  }
-
-  late final _start_listening_insetsPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
-          'start_listening_insets');
-  late final _start_listening_insets =
-      _start_listening_insetsPtr.asFunction<void Function()>();
 
   /// Call this function to stop listening to keyboard events.
   void stop_listening_insets() {
@@ -175,3 +191,10 @@ typedef KeyboardStateUpdateCallbackFunction = ffi.Void Function(
     ffi.Bool isVisible, ffi.Bool isAnimating);
 typedef DartKeyboardStateUpdateCallbackFunction = void Function(
     bool isVisible, bool isAnimating);
+
+/// A callback for safe area inset changes.
+typedef SafeAreaInsetUpdateCallback
+    = ffi.Pointer<ffi.NativeFunction<SafeAreaInsetUpdateCallbackFunction>>;
+typedef SafeAreaInsetUpdateCallbackFunction = ffi.Void Function(
+    ffi.Float inset);
+typedef DartSafeAreaInsetUpdateCallbackFunction = void Function(double inset);
