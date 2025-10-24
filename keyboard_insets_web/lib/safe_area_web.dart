@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html' as html;
 import 'dart:js' as js;
 
@@ -7,17 +8,23 @@ class SafeAreaMonitorWeb {
   static bool initialized = false;
   static bool listening = false;
 
-  static void startSafeAreaObserver(SafeAreaCallback callback) {
+  static Future<void> startSafeAreaObserver(SafeAreaCallback callback) async {
     if (!initialized) {
-      _injectJs();
+      await _injectJs(); // ✅ Wait until JS is fully available
       initialized = true;
+    }
+
+    final safeAreaMonitor = js.context['SafeAreaMonitor'];
+    if (safeAreaMonitor == null) {
+      throw Exception('SafeAreaMonitor JS object not found');
     }
 
     js.context.callMethod('SafeAreaMonitor.startSafeAreaObserver', [
       js.allowInterop((num bottomInset) {
         callback(bottomInset.toDouble());
-      })
+      }),
     ]);
+
     listening = true;
   }
 
@@ -28,7 +35,9 @@ class SafeAreaMonitorWeb {
     listening = false;
   }
 
-  static void _injectJs() {
+  static Future<void> _injectJs() async {
+    if (js.context['SafeAreaMonitor'] != null) return;
+
     const scriptContent = '''
       window.SafeAreaMonitor = {
         _callback: null,
@@ -87,7 +96,6 @@ class SafeAreaMonitorWeb {
           document.body.removeChild(div);
 
           bottomInset = Math.max(bottomInset, envInset);
-
           this._callback(bottomInset);
         }
       };
@@ -97,6 +105,12 @@ class SafeAreaMonitorWeb {
       ..type = 'text/javascript'
       ..text = scriptContent;
 
+    final completer = Completer<void>();
+    script.onLoad.listen((_) => completer.complete());
+    script.onError.listen((_) =>
+        completer.completeError('Failed to load SafeAreaMonitor script'));
     html.document.head!.append(script);
+
+    await completer.future;
   }
 }

@@ -1,3 +1,7 @@
+## 0.1.1
+[Android] - Fixed a bug with triggering the keyboard observer in JNI.
+[Android] - Fixed the safe area bottom padding exceeding the native Flutter padding.
+
 ## 0.1.0
 
 ### ✨ Initial release of Native iOS + Android FFI implementations

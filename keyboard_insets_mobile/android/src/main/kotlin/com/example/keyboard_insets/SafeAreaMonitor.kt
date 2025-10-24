@@ -65,17 +65,9 @@ object SafeAreaMonitor {
         if (insets == null) return
         val act = activity ?: return
 
-        // Get bottom system gesture or navigation bar inset
-        val bottomInsetPx = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                // Use systemGestureInsets for gesture navigation
-                insets.getInsets(Type.systemGestures()).bottom
-                    .coerceAtLeast(insets.getInsets(Type.systemBars()).bottom)
-            }
-            else -> {
-                insets.getInsets(Type.systemBars()).bottom
-            }
-        }
+        val bottomInsetPx = insets
+            .getInsetsIgnoringVisibility(WindowInsetsCompat.Type.navigationBars())
+            .bottom
 
         if (bottomInsetPx == lastInsetPx) return
         lastInsetPx = bottomInsetPx

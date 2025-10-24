@@ -12,9 +12,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  keyboard_insets_platform_interface: ^1.0.0
-  keyboard_insets_mobile: ^0.1.0
-  keyboard_insets_web: ^0.1.0
+  keyboard_insets_platform_interface: 1.0.0
+  keyboard_insets_mobile: 0.1.1
+  keyboard_insets_web: 0.1.1
 
 flutter:
   plugin:

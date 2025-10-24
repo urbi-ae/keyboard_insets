@@ -40,6 +40,7 @@ class _MyAppState extends State<MyApp> {
     if (kDebugMode) {
       print('Safe area height: ${PersistentSafeAreaBottom.notifier?.value}');
     }
+    setState(() {});
   }
 
   @override
@@ -56,7 +57,7 @@ class _MyAppState extends State<MyApp> {
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
-                    height: 50,
+                    height: PersistentSafeAreaBottom.notifier?.value ?? 0.0,
                     width: double.infinity,
                     margin: EdgeInsets.only(
                       bottom: max(0, (snapshot.data ?? 0)),

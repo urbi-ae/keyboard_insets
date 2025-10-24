@@ -80,10 +80,10 @@ extern "C" {
 __attribute__((visibility("default")))
 __attribute__((used))
 void start_listening_insets(void) {
-    if (!g_jvm || !g_keyboardClass || !g_midStopKeyboardObserver) return;
+    if (!g_jvm || !g_keyboardClass || !g_midStartKeyboardObserver) return;
     JNIEnv* env = get_env();
     if (!env) return;
-    (*env)->CallStaticVoidMethod(env, g_keyboardClass, g_midStopKeyboardObserver);
+    (*env)->CallStaticVoidMethod(env, g_keyboardClass, g_midStartKeyboardObserver);
 }
 
 __attribute__((visibility("default")))

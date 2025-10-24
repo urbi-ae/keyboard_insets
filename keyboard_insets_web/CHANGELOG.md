@@ -1,3 +1,6 @@
+## 0.1.1
+[Plugin] - Fixed build for a Web Platform.
+
 ## 0.1.0
 
 ### ✨ Initial release of Web fallback implementation

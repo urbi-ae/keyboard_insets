@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:keyboard_insets_platform_interface/keyboard_insets_platform_interface.dart';
 import 'package:keyboard_insets_web/safe_area_web.dart';
 
@@ -23,7 +24,7 @@ class KeyboardInsetsWeb extends KeyboardInsetsPlatform {
     window.visualViewport?.addEventListener('scroll', _onResize);
   }
 
-  static void registerWith(KeyboardInsetsPlatform registrar) {
+  static void registerWith(Registrar registrar) {
     KeyboardInsetsPlatform.instance = KeyboardInsetsWeb();
   }
 
