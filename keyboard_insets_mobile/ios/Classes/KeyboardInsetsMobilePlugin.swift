@@ -82,16 +82,7 @@ private func _startKeyboardObserverMain() {
         let layer = CALayer()
         layer.position = .zero
 
-        if let window = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first?.windows.first(where: { $0.isKeyWindow })
-        {
-            window.layer.addSublayer(layer)
-        } else if let window = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .flatMap({ $0.windows })
-            .first
-        {
+        if let window = currentWindow() {
             window.layer.addSublayer(layer)
         }
 
@@ -111,7 +102,14 @@ private func _startKeyboardObserverMain() {
             target: DisplayLinkProxy.shared,
             selector: #selector(DisplayLinkProxy.tick(_:))
         )
-        displayLink?.preferredFramesPerSecond = 120
+
+        let maxFPS: Int
+        if #available(iOS 15.0, *) {
+            maxFPS = UIScreen.main.maximumFramesPerSecond
+        } else {
+            maxFPS = 60
+        }
+        displayLink?.preferredFramesPerSecond = maxFPS
         displayLink?.add(to: .main, forMode: .common)
 
         let workItem = DispatchWorkItem { [weak layer] in
@@ -133,8 +131,8 @@ private func _startKeyboardObserverMain() {
 
 @MainActor
 private func _stopKeyboardObserverMain() {
-    if let token = keyboardObserver {
-        NotificationCenter.default.removeObserver(token)
+    if let observer = keyboardObserver {
+        NotificationCenter.default.removeObserver(observer)
         keyboardObserver = nil
     }
 
@@ -147,6 +145,25 @@ private func _stopKeyboardObserverMain() {
 
     settleWorkItem?.cancel()
     settleWorkItem = nil
+}
+
+@MainActor
+func currentWindow() -> UIWindow? {
+    let scene = UIApplication.shared.connectedScenes
+        .compactMap { $0 as? UIWindowScene }
+        .first { $0.activationState == .foregroundActive }
+
+    guard let windowScene = scene else {
+        return nil
+    }
+
+    if let keyWindow = windowScene.windows.first(where: { $0.isKeyWindow }) {
+        return keyWindow
+    }
+
+    return windowScene.windows.first {
+        $0.windowLevel == .normal && !$0.isHidden && $0.alpha > 0
+    }
 }
 
 private class DisplayLinkProxy {
@@ -184,9 +201,7 @@ public func stop_safe_area_observer() {
 @MainActor
 private func _startSafeAreaObserverMain() {
     guard
-        let scene = UIApplication.shared.connectedScenes.first
-            as? UIWindowScene,
-        let window = scene.windows.first(where: { $0.isKeyWindow })
+        let window = currentWindow()
     else {
         return
     }
@@ -274,7 +289,7 @@ final class SafeAreaMonitorView: UIView {
 
     private func registerForOrientationChanges() {
         let nc = NotificationCenter.default
-        orientationObserverToken = nc.addObserver(
+        orientationObserver = nc.addObserver(
             forName: UIDevice.orientationDidChangeNotification,
             object: nil,
             queue: .main
@@ -282,7 +297,7 @@ final class SafeAreaMonitorView: UIView {
             self?.handleOrientationChange()
         }
 
-        statusBarObserverToken = nc.addObserver(
+        statusBarObserver = nc.addObserver(
             forName: UIApplication.didChangeStatusBarFrameNotification,
             object: nil,
             queue: .main

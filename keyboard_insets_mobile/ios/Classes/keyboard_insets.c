@@ -20,7 +20,10 @@ void start_listening_insets(void) {
 }
 
 void stop_listening_insets(void) {
-    stop_keyboard_observer();
+    if(is_listening_insets){
+        stop_keyboard_observer();
+    }
+    is_listening_insets = false;
 }
 
 void start_listening_safe_area(void){
