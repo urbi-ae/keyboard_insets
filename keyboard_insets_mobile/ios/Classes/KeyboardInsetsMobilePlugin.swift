@@ -25,6 +25,20 @@ public func simulate_keyboard_animation(_ isEnabled: Bool) {
 
 @_cdecl("start_keyboard_observer")
 public func start_keyboard_observer() {
+    Task { @MainActor in
+        _startKeyboardObserverMain()
+    }
+}
+
+@_cdecl("stop_keyboard_observer")
+public func stop_keyboard_observer() {
+    Task { @MainActor in
+        _stopKeyboardObserverMain()
+    }
+}
+
+@MainActor
+private func _startKeyboardObserverMain() {
     if let observer = keyboardObserver {
         NotificationCenter.default.removeObserver(observer)
         keyboardObserver = nil
@@ -35,12 +49,16 @@ public func start_keyboard_observer() {
         object: nil,
         queue: .main
     ) { note in
-        guard let frameValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue
+        guard
+            let frameValue = note.userInfo?[
+                UIResponder.keyboardFrameEndUserInfoKey
+            ] as? NSValue
         else { return }
         let frame = frameValue.cgRectValue
         let screenHeight = UIScreen.main.bounds.height
         let animationDuration =
-            (note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?
+            (note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey]
+            as? NSNumber)?
             .doubleValue ?? 0.25
 
         startInset = CGFloat(currentInset)
@@ -54,16 +72,26 @@ public func start_keyboard_observer() {
 
         // Cancel old animation + cleanup
         displayLink?.invalidate()
+        displayLink = nil
         animationLayer?.removeAllAnimations()
         animationLayer?.removeFromSuperlayer()
-        displayLink = nil
         animationLayer = nil
         settleWorkItem?.cancel()
+        settleWorkItem = nil
 
         let layer = CALayer()
         layer.position = .zero
 
-        if let window = UIApplication.shared.windows.first {
+        if let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first?.windows.first(where: { $0.isKeyWindow })
+        {
+            window.layer.addSublayer(layer)
+        } else if let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first
+        {
             window.layer.addSublayer(layer)
         }
 
@@ -81,109 +109,131 @@ public func start_keyboard_observer() {
 
         displayLink = CADisplayLink(
             target: DisplayLinkProxy.shared,
-            selector: #selector(DisplayLinkProxy.tick))
+            selector: #selector(DisplayLinkProxy.tick(_:))
+        )
         displayLink?.preferredFramesPerSecond = 120
         displayLink?.add(to: .main, forMode: .common)
 
-        let workItem = DispatchWorkItem {
+        let workItem = DispatchWorkItem { [weak layer] in
             currentInset = Float(targetInset)
             platform_update_inset(currentInset, Float(targetInset))
             displayLink?.invalidate()
-            animationLayer?.removeFromSuperlayer()
             displayLink = nil
+            layer?.removeFromSuperlayer()
             animationLayer = nil
             settleWorkItem = nil
         }
         settleWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration, execute: workItem)
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + animationDuration,
+            execute: workItem
+        )
     }
+}
+
+@MainActor
+private func _stopKeyboardObserverMain() {
+    if let token = keyboardObserver {
+        NotificationCenter.default.removeObserver(token)
+        keyboardObserver = nil
+    }
+
+    displayLink?.invalidate()
+    displayLink = nil
+
+    animationLayer?.removeAllAnimations()
+    animationLayer?.removeFromSuperlayer()
+    animationLayer = nil
+
+    settleWorkItem?.cancel()
+    settleWorkItem = nil
 }
 
 private class DisplayLinkProxy {
     static let shared = DisplayLinkProxy()
 
-    @objc func tick(link: CADisplayLink) {
+    @objc func tick(_ link: CADisplayLink) {
         guard let animLayer = animationLayer,
             let pres = animLayer.presentation(),
-            let t = pres.value(forKeyPath: "position.y") as? CGFloat
+            let tNumber = pres.value(forKeyPath: "position.y") as? NSNumber
         else {
             return
         }
 
+        let t = CGFloat(truncating: tNumber)
         let interpolated = startInset + (targetInset - startInset) * t
         currentInset = Float(interpolated)
         platform_update_inset(Float(currentInset), Float(targetInset))
     }
 }
 
-@_cdecl("stop_keyboard_observer")
-public func stop_keyboard_observer() {
-    if let observer = keyboardObserver {
-        NotificationCenter.default.removeObserver(observer)
-        keyboardObserver = nil
-    }
-    displayLink?.invalidate()
-    displayLink = nil
-    animationLayer?.removeAllAnimations()
-    animationLayer?.removeFromSuperlayer()
-    animationLayer = nil
-    settleWorkItem?.cancel()
-    settleWorkItem = nil
-}
-
 @_cdecl("start_safe_area_observer")
 public func start_safe_area_observer() {
-    DispatchQueue.main.async {
-        guard
-            let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-            let window = scene.windows.first(where: { $0.isKeyWindow })
-        else { return }
-
-        // Remove previous monitor if any
-        safeAreaMonitor?.removeFromSuperview()
-
-        // Create a hidden monitor view
-        let monitor = SafeAreaMonitorView(frame: .zero)
-        monitor.isUserInteractionEnabled = false
-        monitor.backgroundColor = .clear
-        monitor.translatesAutoresizingMaskIntoConstraints = false
-        window.addSubview(monitor)
-
-        NSLayoutConstraint.activate([
-            monitor.leadingAnchor.constraint(equalTo: window.leadingAnchor),
-            monitor.trailingAnchor.constraint(equalTo: window.trailingAnchor),
-            monitor.topAnchor.constraint(equalTo: window.topAnchor),
-            monitor.bottomAnchor.constraint(equalTo: window.bottomAnchor),
-        ])
-
-        monitor.onSafeAreaChange = { bottomInset in
-            updateSafeArea(bottomInset)
-        }
-
-        safeAreaMonitor = monitor
-
-        // Initial update
-        updateSafeArea(window.safeAreaInsets.bottom)
+    Task { @MainActor in
+        _startSafeAreaObserverMain()
     }
 }
 
 @_cdecl("stop_safe_area_observer")
 public func stop_safe_area_observer() {
-    DispatchQueue.main.async {
-        safeAreaMonitor?.removeFromSuperview()
-        safeAreaMonitor = nil
+    Task { @MainActor in
+        _stopSafeAreaObserverMain()
     }
+}
+
+@MainActor
+private func _startSafeAreaObserverMain() {
+    guard
+        let scene = UIApplication.shared.connectedScenes.first
+            as? UIWindowScene,
+        let window = scene.windows.first(where: { $0.isKeyWindow })
+    else {
+        return
+    }
+
+    // Remove previous monitor (if any)
+    safeAreaMonitor?.removeFromSuperview()
+    safeAreaMonitor = nil
+
+    // Create and attach monitor view
+    let monitor = SafeAreaMonitorView(frame: .zero)
+    monitor.isUserInteractionEnabled = false
+    monitor.backgroundColor = .clear
+    monitor.translatesAutoresizingMaskIntoConstraints = false
+    window.addSubview(monitor)
+
+    NSLayoutConstraint.activate([
+        monitor.leadingAnchor.constraint(equalTo: window.leadingAnchor),
+        monitor.trailingAnchor.constraint(equalTo: window.trailingAnchor),
+        monitor.topAnchor.constraint(equalTo: window.topAnchor),
+        monitor.bottomAnchor.constraint(equalTo: window.bottomAnchor),
+    ])
+
+    monitor.onSafeAreaChange = { bottomInset in
+        updateSafeArea(bottomInset)
+    }
+
+    safeAreaMonitor = monitor
+
+    // Initial update
+    DispatchQueue.main.async {
+        updateSafeArea(window.safeAreaInsets.bottom)
+    }
+}
+
+@MainActor
+private func _stopSafeAreaObserverMain() {
+    safeAreaMonitor?.removeFromSuperview()
+    safeAreaMonitor = nil
 }
 
 @_cdecl("updateSafeArea")
 public func updateSafeArea(_ newInset: CGFloat) {
-    // guard abs(newInset - lastSafeAreaBottom) > 0.5 else { return }
     lastSafeAreaBottom = newInset
     platform_update_safe_area(Float(newInset))
 }
 
-/// A hidden view that observes changes to the window's safe area insets.
-/// Used to track home indicator height or bottom safe area changes across orientation changes.
+@MainActor
 final class SafeAreaMonitorView: UIView {
 
     /// Callback triggered when the bottom safe area inset changes.
@@ -191,8 +241,11 @@ final class SafeAreaMonitorView: UIView {
 
     /// Cache the last reported inset to avoid duplicate updates.
     private var lastReportedInset: CGFloat = -1
+    private var orientationObserver: NSObjectProtocol?
+    private var statusBarObserver: NSObjectProtocol?
 
     override func didMoveToWindow() {
+        assert(Thread.isMainThread)
         super.didMoveToWindow()
 
         // Recalculate when attached to a new window
@@ -201,8 +254,9 @@ final class SafeAreaMonitorView: UIView {
     }
 
     override func removeFromSuperview() {
-        super.removeFromSuperview()
+        assert(Thread.isMainThread)
         unregisterForOrientationChanges()
+        super.removeFromSuperview()
     }
 
     /// Called automatically whenever safe area insets change.
@@ -219,23 +273,34 @@ final class SafeAreaMonitorView: UIView {
     }
 
     private func registerForOrientationChanges() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleOrientationChange),
-            name: UIDevice.orientationDidChangeNotification,
-            object: nil
-        )
+        let nc = NotificationCenter.default
+        orientationObserverToken = nc.addObserver(
+            forName: UIDevice.orientationDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleOrientationChange()
+        }
 
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleOrientationChange),
-            name: UIApplication.didChangeStatusBarFrameNotification,
-            object: nil
-        )
+        statusBarObserverToken = nc.addObserver(
+            forName: UIApplication.didChangeStatusBarFrameNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleOrientationChange()
+        }
     }
 
     private func unregisterForOrientationChanges() {
-        NotificationCenter.default.removeObserver(self)
+        let nc = NotificationCenter.default
+        if let t = orientationObserver {
+            nc.removeObserver(t)
+            orientationObserver = nil
+        }
+        if let t = statusBarObserver {
+            nc.removeObserver(t)
+            statusBarObserver = nil
+        }
     }
 
     /// Compare and send only when safe area bottom changes.
@@ -250,7 +315,7 @@ final class SafeAreaMonitorView: UIView {
         guard let window = self.window else { return }
         let newInset = window.safeAreaInsets.bottom
 
-        if abs(newInset - lastReportedInset) > 0.5 {  // avoid tiny floating-point noise
+        if abs(newInset - lastReportedInset) > 0.5 { /// Threshold to avoid noise
             lastReportedInset = newInset
             onSafeAreaChange?(newInset)
         }
