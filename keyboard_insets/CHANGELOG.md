@@ -1,3 +1,10 @@
+## 0.1.2
+[keyboard_insets_mobile] - Use Swift concurrency @MainActor for public C entry points to avoid crashes on iOS 26
+
+## 0.1.1
+[keyboard_insets_mobile] - Fixed a bug with triggering the keyboard observer in JNI.
+[keyboard_insets_mobile] - Fixed the safe area bottom padding exceeding the native Flutter padding on Android.
+
 ## 0.1.0+1
 [Docs] Fixed README.md file columns.
 

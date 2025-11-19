@@ -11,6 +11,7 @@ static jmethodID g_midSetAnimateKeyboard  = NULL;       // setKeyboardAnimation(
 static jmethodID g_midStartSafeAreaObserver = NULL;     // startSafeAreaObserver()V
 static jmethodID g_midStopSafeAreaObserver  = NULL;     // stopSafeAreaObserver()V
 
+void set_inset_listen(bool value);
 void platform_update_inset(float inset, float target);
 void platform_update_safe_area(float inset);
 
@@ -93,6 +94,7 @@ void stop_listening_insets(void) {
     JNIEnv* env = get_env();
     if (!env) return;
     (*env)->CallStaticVoidMethod(env, g_keyboardClass, g_midStopKeyboardObserver);
+    set_inset_listen(false);
 }
 
 __attribute__((visibility("default")))

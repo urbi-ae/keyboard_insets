@@ -1,6 +1,9 @@
 #pragma once
 #include <stdbool.h>
 
+extern bool is_listening_insets;
+extern bool is_listening_safe_area;
+
 // Get keyboard height in logical pixels.
 float get_keyboard_height(void);
 
@@ -45,3 +48,6 @@ void stop_listening_insets(void);
 
 // Do not call this function directly, it is called by platform-specific code.
 void platform_set_keyboard_animation(bool isEnabled);
+
+// Do not call this function directly, it is called by platform-specific code.
+void set_inset_listen(bool value);

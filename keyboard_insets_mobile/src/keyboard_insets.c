@@ -9,7 +9,15 @@ static float current_inset = -1.0f;
 static float current_target = -1.0f;
 static float max_inset = -1.0f;
 
+static bool lastIsVisible;
+static bool lastIsAnimating;
+
 static bool is_keyboard_animation_enabled = true;
+
+bool is_listening_insets = false;
+bool is_listening_safe_area = false;
+
+void set_inset_listen(bool value) { is_listening_insets = value; }
 
 
 // ---- Keyboard insets ------------------------------------------------------------------
@@ -31,7 +39,10 @@ void unregister_inset_callback(void) { inset_callback = 0; }
 
 void register_state_callback(KeyboardStateUpdateCallback callback) {
     state_callback = callback;
-    start_listening_insets();
+    if(!is_listening_insets){
+        start_listening_insets();
+        is_listening_insets = true;
+    }
 }
 
 void unregister_state_callback(void) { state_callback = 0; }
@@ -71,7 +82,15 @@ void platform_update_inset(float current, float target) {
     }
 
     if (state_callback) {
-        state_callback(is_keyboard_visible(), is_keyboard_animating());
+        bool isVisible = is_keyboard_visible();
+        bool isAnimating = is_keyboard_animating();
+        
+        if(lastIsVisible != isVisible||lastIsAnimating != isAnimating){
+            state_callback(isVisible, isAnimating);
+            lastIsVisible = isVisible;
+            lastIsAnimating = isAnimating;
+        }
+
     }
 }
 
@@ -82,12 +101,18 @@ void stop_listening_safe_area(void);
 
 void register_safe_area_inset_callback(SafeAreaInsetUpdateCallback callback) {
     safe_area_callback = callback;
-    start_listening_safe_area();
+    if(!is_listening_safe_area){
+        start_listening_safe_area();
+        is_listening_safe_area = true;
+    }
 }
 
 void unregister_safe_area_inset_callback(void) { 
     safe_area_callback = 0;
-    stop_listening_safe_area();
+    if(is_listening_safe_area){
+        stop_listening_safe_area();
+        is_listening_safe_area = false;
+    }
 }
 
 /// Called by platform-specific code

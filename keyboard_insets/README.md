@@ -17,7 +17,7 @@ Unlike `MediaQuery.viewInsets`, this package gives you **frame-by-frame updates*
 Add the package to your `pubspec.yaml`:
 ```yaml
 dependencies:
-    keyboard_insets: ^0.1.0
+    keyboard_insets: ^0.1.2
 ```
 
 ### iOS Setup
